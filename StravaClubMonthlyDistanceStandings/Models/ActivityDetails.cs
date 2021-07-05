@@ -4,8 +4,8 @@
     {
         public string AthleteName { get; set; }
         public string TrainingDistance { get; set; }
-        public string TrainingMovingTime { get; set; }
         public string TrainingType { get; set; }
         public string TrainingElevation { get; set; }
+        public string TrainingPace { get; set; }
     }
 }

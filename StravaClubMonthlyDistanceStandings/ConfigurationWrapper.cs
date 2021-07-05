@@ -34,7 +34,12 @@ namespace StravaClubMonthlyDistanceStandings
             return string.Concat(year, month);
         }
 
-        private  IConfigurationBuilder InitializeConfigurationBuilder()
+        public string GetActivityType()
+        {
+            return InitializeConfigurationBuilder().Build()["Data:TrainingType"];
+        }
+        
+        private IConfigurationBuilder InitializeConfigurationBuilder()
         {
             return new ConfigurationBuilder().AddJsonFile("appsettings.json");
         }   
