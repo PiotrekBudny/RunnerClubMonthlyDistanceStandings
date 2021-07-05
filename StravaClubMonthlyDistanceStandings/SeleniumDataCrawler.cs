@@ -23,13 +23,10 @@ namespace StravaClubMonthlyDistanceStandings
             _configurationWrapper = new ConfigurationWrapper();
         }
 
-
         public void RunSteps()
         {
             GoToStravaAndFetchData();
             
-            Console.ReadLine();
-
             _driverHandler.DisposeWebDriver();
         }
 
