@@ -36,23 +36,13 @@ namespace StravaClubMonthlyDistanceStandings.Pages
 
         public ActivityDetails GetActivityDetails()
         {
-            var distance = Distance.Text.RemoveMeasureUnitFromString();
-
-            var pace = Pace.Text.RemoveMeasureUnitFromString();
-
-            var athleteName = AthleteNameLink.Text;
-
-            var activityType = ActivityType.Text.GetActivityTypeSubstring();
-
-            var elevationValue = ElevationValue.Text.RemoveMeasureUnitFromString();
-
             return  new ActivityDetails()
             {
-                AthleteName = athleteName,
-                TrainingDistance = distance,
-                TrainingPace = pace,
-                TrainingElevation = elevationValue,
-                TrainingType = activityType
+                AthleteName = AthleteNameLink.Text.GetAthleteNameShortened(),
+                TrainingDistance = decimal.Parse(Distance.Text.RemoveMeasureUnitFromString()),
+                TrainingPace = TimeSpan.Parse(Pace.Text.RemoveMeasureUnitFromString()),
+                TrainingElevation = decimal.Parse(ElevationValue.Text.RemoveMeasureUnitFromString()),
+                TrainingType = ActivityType.Text.GetActivityTypeSubstring()
             };
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenQA.Selenium;
 using StravaClubMonthlyDistanceStandings.Models;
 using StravaClubMonthlyDistanceStandings.Pages;
@@ -15,6 +16,7 @@ namespace StravaClubMonthlyDistanceStandings
         private readonly List<string> _athletesActivitiesUrls = new List<string>();
         private string _currentActivityType;
         private readonly List<ActivityDetails> _recordedActivitiesThisMonth = new List<ActivityDetails>();
+        private List<AthleteSummary> _athleteSummaries;
         
         public SeleniumDataCrawler()
         {
@@ -25,7 +27,9 @@ namespace StravaClubMonthlyDistanceStandings
 
         public void RunSteps()
         {
-            GoToStravaAndFetchData();
+            var crawler = 
+                GoToStravaAndFetchData().
+                PrepareAthleteSummaries();
             
             _driverHandler.DisposeWebDriver();
         }
@@ -44,6 +48,15 @@ namespace StravaClubMonthlyDistanceStandings
             GetAthletesActivities();
             GetActivitiesData();
 
+            return this;
+        }
+
+        private SeleniumDataCrawler PrepareAthleteSummaries()
+        {
+            var summaryHandler = new AthleteSummaryHandler(_recordedActivitiesThisMonth);
+            summaryHandler.PrepareSummariesFromRecordedActivities();
+            _athleteSummaries = summaryHandler.GetAthleteSummaries();
+            
             return this;
         }
 

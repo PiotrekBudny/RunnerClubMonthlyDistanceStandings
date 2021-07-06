@@ -30,5 +30,14 @@
 
             return value.Substring(indexOfLetterAfterLastSpace);
         }
+
+        public static string GetAthleteNameShortened(this string value)
+        {
+            var nameParts = value.Split(' ');
+
+            nameParts[1] = nameParts[1].Substring(0, 2);
+
+            return $"{string.Join(" ", nameParts)}.";
+        }
     }
 }
