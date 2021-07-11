@@ -39,5 +39,10 @@
 
             return $"{string.Join(" ", nameParts)}.";
         }
+
+        public static bool ActivityUrlIsNotSegmentsLink(this string value)
+        {
+            return !value.Contains("/segments/");
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace StravaClubMonthlyDistanceStandings.Pages
     {
         private IWebElement MembersTab => WebDriver.FindElement(By.LinkText("Members"));
 
-        public ClubPage(IWebDriver webWebDriver)
+        public ClubPage(IWebDriver webWebDriver) : base()
         {
             WebDriver = webWebDriver;
         }

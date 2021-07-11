@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConsoleTables.Core;
 using OpenQA.Selenium;
 using StravaClubMonthlyDistanceStandings.Models;
 using StravaClubMonthlyDistanceStandings.Pages;
@@ -14,7 +15,7 @@ namespace StravaClubMonthlyDistanceStandings
         private readonly WebDriverHandler _driverHandler;
         private List<string> _athleteProfileUrls;
         private readonly List<string> _athletesActivitiesUrls = new List<string>();
-        private string _currentActivityType;
+        private string _currentActivityType, _currentAthleteActivityProfileUrl;
         private readonly List<ActivityDetails> _recordedActivitiesThisMonth = new List<ActivityDetails>();
         private List<AthleteSummary> _athleteSummaries;
         
@@ -27,10 +28,11 @@ namespace StravaClubMonthlyDistanceStandings
 
         public void RunSteps()
         {
-            var crawler = 
-                GoToStravaAndFetchData().
-                PrepareAthleteSummaries();
-            
+            var crawler =
+                GoToStravaAndFetchData()
+                    .PrepareAthleteSummaries()
+                    .PrintSummariesToConsole();
+
             _driverHandler.DisposeWebDriver();
         }
 
@@ -45,7 +47,7 @@ namespace StravaClubMonthlyDistanceStandings
                 .ClickOnMembersTab()
                 .MakeSnapshot(MakeSnapshotOfAthleteProfileUrls);
 
-            GetAthletesActivities();
+            GetAthletesFeedActivities();
             GetActivitiesData();
 
             return this;
@@ -60,6 +62,27 @@ namespace StravaClubMonthlyDistanceStandings
             return this;
         }
 
+        private SeleniumDataCrawler PrintSummariesToConsole()
+        {
+            Console.WriteLine();
+            Console.WriteLine(DateTime.Now);
+            Console.WriteLine("AthleteName, Distance[km], ElevationSum[m], Avg.Pace[min/km], TrainingCount");
+
+            var consoleTable =
+                new ConsoleTable("AthleteName", "Distance[km]", "ElevationSum[m]", "Avg.Pace[min/km]", "TrainingCount");
+
+            _athleteSummaries = _athleteSummaries.OrderByDescending(x => x.Distance).ToList();
+
+            foreach (var athleteSummary in _athleteSummaries)
+            {
+                consoleTable.AddRow(athleteSummary.AthleteName, athleteSummary.Distance, athleteSummary.ElevationSum, athleteSummary.AveragePace, athleteSummary.TrainingCount);
+            }
+
+            consoleTable.Write();
+
+            return this;
+        }
+
         private string BuildClubPageUrl() => string.Concat(_configurationWrapper.GetStravaAddressEndpoint(), "/clubs/",
             _configurationWrapper.GetStravaClubId());
 
@@ -69,15 +92,14 @@ namespace StravaClubMonthlyDistanceStandings
                 _configurationWrapper.GetMonthlyFilterValue(),
                 "&interval_type=month&chart_type=miles&year_offset=0");
 
-        private void GetAthletesActivities()
+        private void GetAthletesFeedActivities()
         {
             foreach (var url in _athleteProfileUrls)
             {
-                Console.WriteLine(url);
                 MoveToAthleteMonthlyActivitiesProfilePage(url);
 
                 var getAthleteActivitiesSteps = new AthleteProfilePage(_webDriver)
-                    .MakeSnapshot(MakeSnapshotOfAthleteActivitiesUrls);
+                    .MakeSnapshot(MakeSnapshotOfAthleteFeedActivitiesUrls);
             }
         }
 
@@ -89,9 +111,10 @@ namespace StravaClubMonthlyDistanceStandings
                 Console.WriteLine(activityUrl);
 
                 var getActivityDataSteps = new ActivityPage(_webDriver)
-                    .MakeSnapshot(MakeSnapshotActivityType);
+                    .MakeSnapshot(MakeSnapshotActivityType)
+                    .MakeSnapshot(MakeSnapshotAthleteUrl);
 
-                if (_currentActivityType.Contains(_configurationWrapper.GetActivityType()))
+                if (_configurationWrapper.GetActivityTypes().Contains(_currentActivityType) && _athleteProfileUrls.Contains(_currentAthleteActivityProfileUrl))
                 {
                     getActivityDataSteps.MakeSnapshot(MakeSnapshotOfActivityData);
                 }
@@ -118,7 +141,12 @@ namespace StravaClubMonthlyDistanceStandings
 
         private void MakeSnapshotActivityType(ActivityPage page)
         {
-            _currentActivityType = page.GetActivityLabelText;
+            _currentActivityType = page.GetActivityLabelText.Split("– ",2)[1];
+        }
+
+        private void MakeSnapshotAthleteUrl(ActivityPage page)
+        {
+            _currentAthleteActivityProfileUrl = page.GetActivityAthleteProfileHref;
         }
 
         private void MakeSnapshotOfActivityData(ActivityPage page)
@@ -126,7 +154,7 @@ namespace StravaClubMonthlyDistanceStandings
             _recordedActivitiesThisMonth.Add(page.GetActivityDetails());
         }
 
-        private void MakeSnapshotOfAthleteActivitiesUrls(AthleteProfilePage page)
+        private void MakeSnapshotOfAthleteFeedActivitiesUrls(AthleteProfilePage page)
         {
             _athletesActivitiesUrls.AddRange(page.GetAllAthleteActivitiesOfChosenMonth());
         }

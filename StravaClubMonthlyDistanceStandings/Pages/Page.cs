@@ -17,7 +17,7 @@ namespace StravaClubMonthlyDistanceStandings.Pages
             {
                 javaScriptExecutor.ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
 
-                Thread.Sleep(TimeSpan.FromSeconds(2));
+                Thread.Sleep(TimeSpan.FromSeconds(5));
                 var newHeight = javaScriptExecutor.ExecuteScript("return document.body.scrollHeight");
 
                 if (newHeight.Equals(lastHeight))

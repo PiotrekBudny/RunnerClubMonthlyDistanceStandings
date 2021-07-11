@@ -9,6 +9,7 @@ namespace StravaClubMonthlyDistanceStandings.Pages
         public AthleteProfilePage(IWebDriver webWebDriver)
         {
             WebDriver = webWebDriver;
+            ScrollPageDownToLoadAllData();
         }
 
         public AthleteProfilePage MakeSnapshot(Action<AthleteProfilePage> action)
@@ -20,22 +21,26 @@ namespace StravaClubMonthlyDistanceStandings.Pages
 
         public List<string> GetAllAthleteActivitiesOfChosenMonth()
         {
-            ScrollPageDownToLoadAllData();
-
             var athleteActivitiesUrls = new List<string>();
             
             try
             {
                 var feedElements = WebDriver.FindElements(By.ClassName("entry-body"));
-                
+
                 if (feedElements.Count == 0)
                     throw new Exception();
 
                 foreach (var element in feedElements)
                 {
-                    var childElements = element.FindElement(By.TagName("a"));
+                    var childElements = element.FindElements(By.TagName("a"));
 
-                    athleteActivitiesUrls.Add(childElements.GetAttribute("href"));
+                    foreach (var child in childElements)
+                    {
+                        var href = child.GetAttribute("Href");
+
+                        if (href.Contains("/activities/") && athleteActivitiesUrls.ValidateIfUrlIsAlreadyOnList(href) == false && href.ActivityUrlIsNotSegmentsLink())
+                            athleteActivitiesUrls.Add(href);
+                    }
                 }
             }
             catch (Exception)

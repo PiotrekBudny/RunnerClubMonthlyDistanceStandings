@@ -19,8 +19,9 @@ namespace StravaClubMonthlyDistanceStandings.Pages
         private IWebElement Pace =>
             WebDriver.FindElement(By.XPath("//*[@id='heading']/div/div[1]/div[2]/ul/li[3]/strong"));
 
+        private IWebElement AthleteProfileUrl => WebDriver.FindElement(By.XPath("//*[@id='heading']/header/h2/span/a"));
 
-        public ActivityPage(IWebDriver webDriver)
+        public ActivityPage(IWebDriver webDriver) : base()
         {
             WebDriver = webDriver;
         }
@@ -33,6 +34,8 @@ namespace StravaClubMonthlyDistanceStandings.Pages
         }
 
         public string GetActivityLabelText => ActivityType.Text;
+        public string GetActivityAthleteProfileHref => AthleteProfileUrl.GetAttribute("Href");
+
 
         public ActivityDetails GetActivityDetails()
         {
