@@ -38,7 +38,7 @@ namespace StravaClubMonthlyDistanceStandings.Pages
                     {
                         var href = child.GetAttribute("Href");
 
-                        if (href.Contains("/activities/") && athleteActivitiesUrls.ValidateIfUrlIsAlreadyOnList(href) == false && href.ActivityUrlIsNotSegmentsLink())
+                        if (athleteActivitiesUrls.ValidateIfUrlIsAlreadyOnList(href) == false && href.ValidateIfActivityUrlIsMainActivityLink())
                             athleteActivitiesUrls.Add(href);
                     }
                 }

@@ -21,7 +21,7 @@ namespace StravaClubMonthlyDistanceStandings.Pages
 
         private IWebElement AthleteProfileUrl => WebDriver.FindElement(By.XPath("//*[@id='heading']/header/h2/span/a"));
 
-        public ActivityPage(IWebDriver webDriver) : base()
+        public ActivityPage(IWebDriver webDriver)
         {
             WebDriver = webDriver;
         }

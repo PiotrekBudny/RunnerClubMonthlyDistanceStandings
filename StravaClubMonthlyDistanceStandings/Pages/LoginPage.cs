@@ -10,7 +10,7 @@ namespace StravaClubMonthlyDistanceStandings.Pages
         private IWebElement LoginLink => WebDriver.FindElement(By.LinkText("Log In"));
 
 
-        public LoginPage(IWebDriver webWebDriver) : base()
+        public LoginPage(IWebDriver webWebDriver)
         {
             WebDriver = webWebDriver;
         }

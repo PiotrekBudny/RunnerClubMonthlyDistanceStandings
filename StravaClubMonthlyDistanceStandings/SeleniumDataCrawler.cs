@@ -28,6 +28,8 @@ namespace StravaClubMonthlyDistanceStandings
 
         public void RunSteps()
         {
+            Console.WriteLine("Opening Strava in Browser");
+
             var crawler =
                 GoToStravaAndFetchData()
                     .PrepareAthleteSummaries()

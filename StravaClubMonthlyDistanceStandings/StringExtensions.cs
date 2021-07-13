@@ -40,9 +40,9 @@
             return $"{string.Join(" ", nameParts)}.";
         }
 
-        public static bool ActivityUrlIsNotSegmentsLink(this string value)
+        public static bool ValidateIfActivityUrlIsMainActivityLink(this string value)
         {
-            return !value.Contains("/segments/");
+            return !value.Contains("/segments/") && value.Contains("/activities/");
         }
     }
 }
