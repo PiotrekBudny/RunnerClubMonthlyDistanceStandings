@@ -38,7 +38,11 @@ namespace StravaClubMonthlyDistanceStandings
         {
             return InitializeConfigurationBuilder().Build()["Data:TrainingTypes"];
         }
-        
+        public string GetDatabaseConnectionString()
+        {
+            return InitializeConfigurationBuilder().Build()["SQLiteConnectionStringPath"];
+        }
+
         private IConfigurationBuilder InitializeConfigurationBuilder()
         {
             return new ConfigurationBuilder().AddJsonFile("appsettings.json");

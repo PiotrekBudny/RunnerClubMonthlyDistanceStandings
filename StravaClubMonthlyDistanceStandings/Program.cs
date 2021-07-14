@@ -6,8 +6,6 @@ namespace StravaClubMonthlyDistanceStandings
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Opening Strava in Browser");
-
             var crawler = new SeleniumDataCrawler();
             crawler.RunSteps();
 

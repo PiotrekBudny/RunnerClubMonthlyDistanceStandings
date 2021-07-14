@@ -1,15 +1,15 @@
 ﻿namespace StravaClubMonthlyDistanceStandings.Database.DbModels
 {
-    public class AthleteSummary
+    public class AthleteSummaryDbModel
     {
         public long AthleteSummaryId { get; set; }
         public long MonthlySummaryId { get; set; }
         public string AthleteName { get; set; }
-        public byte[] DistanceSumInKilometers { get; set; }
-        public byte[] ElevationInMeters { get; set; }
+        public decimal DistanceSumInKilometers { get; set; }
+        public decimal ElevationInMeters { get; set; }
         public string AvgPace { get; set; }
         public long TrainingCount { get; set; }
 
-        public virtual MonthlySummary MonthlySummary { get; set; }
+        public virtual MonthlySummaryDbModel MonthlySummary { get; set; }
     }
 }

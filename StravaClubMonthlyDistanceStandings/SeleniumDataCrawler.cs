@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ConsoleTables.Core;
 using OpenQA.Selenium;
+using StravaClubMonthlyDistanceStandings.Database;
+using StravaClubMonthlyDistanceStandings.Database.DbModels;
 using StravaClubMonthlyDistanceStandings.Models;
 using StravaClubMonthlyDistanceStandings.Pages;
 
@@ -30,46 +32,84 @@ namespace StravaClubMonthlyDistanceStandings
         {
             Console.WriteLine("Opening Strava in Browser");
 
-            var crawler =
-                GoToStravaAndFetchData()
-                    .PrepareAthleteSummaries()
-                    .PrintSummariesToConsole();
-
-            _driverHandler.DisposeWebDriver();
+            GoToStravaAndFetchData();
+            PrepareAthleteSummaries();
+            PrintSummariesToConsole();
+            SaveAthleteSummariesInDatabase();
         }
 
-        private SeleniumDataCrawler GoToStravaAndFetchData()
+        private void GoToStravaAndFetchData()
         {
-            var steps = new LoginPage(_webDriver)
-                .ClickOnLoginLink()
-                .FillInEmailBox(_configurationWrapper.GetStravaUser())
-                .FillInPasswordBox(_configurationWrapper.GetStravaPassword())
-                .ClickOnLoginButton()
-                .MoveToClubPage(BuildClubPageUrl())
-                .ClickOnMembersTab()
-                .MakeSnapshot(MakeSnapshotOfAthleteProfileUrls);
+            try
+            {
+                var clubPageUrl = StravaUrlBuilder.ClubPage(_configurationWrapper.GetStravaAddressEndpoint(),
+                    _configurationWrapper.GetStravaClubId());
 
-            GetAthletesFeedActivities();
-            GetActivitiesData();
+                var steps = new LoginPage(_webDriver)
+                    .ClickOnLoginLink()
+                    .FillInEmailBox(_configurationWrapper.GetStravaUser())
+                    .FillInPasswordBox(_configurationWrapper.GetStravaPassword())
+                    .ClickOnLoginButton()
+                    .MoveToClubPage(clubPageUrl)
+                    .ClickOnMembersTab()
+                    .MakeSnapshot(MakeSnapshotOfAthleteProfileUrls);
 
-            return this;
+                GetAthletesFeedActivities();
+                GetActivitiesData();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("We have encountered an error during data gathering: {0}", e.Message);
+            }
+            finally
+            {
+                _driverHandler.DisposeWebDriver();
+            }
         }
 
-        private SeleniumDataCrawler PrepareAthleteSummaries()
+        private void PrepareAthleteSummaries()
         {
-            var summaryHandler = new AthleteSummaryHandler(_recordedActivitiesThisMonth);
-            summaryHandler.PrepareSummariesFromRecordedActivities();
-            _athleteSummaries = summaryHandler.GetAthleteSummaries();
-            
-            return this;
+            if (_recordedActivitiesThisMonth.Count > 0)
+            {
+                var summaryHandler = new AthleteSummaryHandler(_recordedActivitiesThisMonth);
+                summaryHandler.PrepareSummariesFromRecordedActivities();
+                _athleteSummaries = summaryHandler.GetAthleteSummaries();
+            }
+            else
+            {
+                Console.WriteLine("No club member has recorded activities.");
+            }
         }
 
-        private SeleniumDataCrawler PrintSummariesToConsole()
+        private void SaveAthleteSummariesInDatabase()
         {
-            Console.WriteLine();
-            Console.WriteLine(DateTime.Now);
-            Console.WriteLine("AthleteName, Distance[km], ElevationSum[m], Avg.Pace[min/km], TrainingCount");
+            using (var dbContext = new SqLiteDbContext(_configurationWrapper.GetDatabaseConnectionString()))
+            {
+                var dbHandler = new DbHandler(dbContext);
+                var athleteSummariesMapper = new AthleteSummariesMapper();
 
+                if (_athleteSummaries.Count > 0)
+                    dbHandler.InsertMonthlySummaryToDatabase(PrepareMonthlySummaryData(),
+                        athleteSummariesMapper.MapToAthleteSummaryDbModel(_athleteSummaries));
+                else
+                {
+                    Console.WriteLine("No AthleteSummaries were prepared for saving.");
+                }
+            }
+        }
+
+        private MonthlySummaryDbModel PrepareMonthlySummaryData()
+        {
+            return new MonthlySummaryDbModel()
+            {
+                CreatedOn = DateTime.Now.ToString("s"),
+                SummaryCode = _configurationWrapper.GetMonthlyFilterValue(),
+                TrainingTypes = _configurationWrapper.GetActivityTypes(),
+            };
+        }
+
+        private void PrintSummariesToConsole()
+        {
             var consoleTable =
                 new ConsoleTable("AthleteName", "Distance[km]", "ElevationSum[m]", "Avg.Pace[min/km]", "TrainingCount");
 
@@ -81,18 +121,7 @@ namespace StravaClubMonthlyDistanceStandings
             }
 
             consoleTable.Write();
-
-            return this;
         }
-
-        private string BuildClubPageUrl() => string.Concat(_configurationWrapper.GetStravaAddressEndpoint(), "/clubs/",
-            _configurationWrapper.GetStravaClubId());
-
-        private string BuildMonthlyActivitiesUrl(string profileUrl) =>
-            string.Concat(profileUrl,
-                "#interval?interval=",
-                _configurationWrapper.GetMonthlyFilterValue(),
-                "&interval_type=month&chart_type=miles&year_offset=0");
 
         private void GetAthletesFeedActivities()
         {
@@ -109,23 +138,29 @@ namespace StravaClubMonthlyDistanceStandings
         {
             foreach (var activityUrl in _athletesActivitiesUrls)
             {
-                MoveToAthleteActivityPage(activityUrl);
-                Console.WriteLine(activityUrl);
-
-                var getActivityDataSteps = new ActivityPage(_webDriver)
-                    .MakeSnapshot(MakeSnapshotActivityType)
-                    .MakeSnapshot(MakeSnapshotAthleteUrl);
-
-                if (_configurationWrapper.GetActivityTypes().Contains(_currentActivityType) && _athleteProfileUrls.Contains(_currentAthleteActivityProfileUrl))
+                try
                 {
-                    getActivityDataSteps.MakeSnapshot(MakeSnapshotOfActivityData);
+                    MoveToAthleteActivityPage(activityUrl);
+
+                    var getActivityDataSteps = new ActivityPage(_webDriver)
+                        .MakeSnapshot(MakeSnapshotActivityType)
+                        .MakeSnapshot(MakeSnapshotAthleteUrl);
+
+                    if (_configurationWrapper.GetActivityTypes().Contains(_currentActivityType) && _athleteProfileUrls.Contains(_currentAthleteActivityProfileUrl))
+                    {
+                        getActivityDataSteps.MakeSnapshot(MakeSnapshotOfActivityData);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Activity not counted towards summary. Unable to gather data from activity {activityUrl}: {0}", e.Message);
                 }
             }
         }
 
         private void MoveToAthleteMonthlyActivitiesProfilePage(string profileUrl)
         {
-            var urlToGoTo = BuildMonthlyActivitiesUrl(profileUrl);
+            var urlToGoTo = StravaUrlBuilder.MonthlyActivities(profileUrl, _configurationWrapper.GetMonthlyFilterValue());
             
             _webDriver.Navigate().GoToUrl(urlToGoTo);
         }

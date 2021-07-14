@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Threading;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 
 namespace StravaClubMonthlyDistanceStandings.Pages
 {
     public class Page
     {
         protected IWebDriver WebDriver;
+
+        public Page()
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+        }
 
         protected void ScrollPageDownToLoadAllData()
         {

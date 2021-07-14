@@ -5,34 +5,36 @@ namespace StravaClubMonthlyDistanceStandings.Database
 {
     public class SqLiteDbContext : DbContext
     {
-        public SqLiteDbContext()
+        private readonly string _databaseConnectionString;
+        
+        public SqLiteDbContext(string databaseConnectionString) : base()
         {
+            _databaseConnectionString = databaseConnectionString;
         }
-
-        public SqLiteDbContext(DbContextOptions<SqLiteDbContext> options)
-            : base(options)
-        {
-        }
-
-        public virtual DbSet<AthleteSummary> AthleteSummaries { get; set; }
-        public virtual DbSet<MonthlySummary> MonthlySummaries { get; set; }
+        
+        public virtual DbSet<AthleteSummaryDbModel> AthleteSummaries { get; set; }
+        public virtual DbSet<MonthlySummaryDbModel> MonthlySummaries { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlite("Filename=C:\\MCS.db");
+                optionsBuilder.UseSqlite(_databaseConnectionString);
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AthleteSummary>(entity =>
+            modelBuilder.Entity<AthleteSummaryDbModel>(entity =>
             {
                 entity.ToTable("AthleteSummary");
 
                 entity.HasIndex(e => e.AthleteSummaryId, "IX_AthleteSummary_AthleteSummaryId")
                     .IsUnique();
+
+                entity.HasKey(e => e.AthleteSummaryId);
+
+                entity.Property(e => e.AthleteSummaryId).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.AthleteName).IsRequired();
 
@@ -40,11 +42,11 @@ namespace StravaClubMonthlyDistanceStandings.Database
 
                 entity.Property(e => e.DistanceSumInKilometers)
                     .IsRequired()
-                    .HasColumnType("NUMERIC");
+                    .HasColumnType("REAL");
 
                 entity.Property(e => e.ElevationInMeters)
                     .IsRequired()
-                    .HasColumnType("NUMERIC");
+                    .HasColumnType("REAL");
 
                 entity.HasOne(d => d.MonthlySummary)
                     .WithMany(p => p.AthleteSummaries)
@@ -52,26 +54,21 @@ namespace StravaClubMonthlyDistanceStandings.Database
                     .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
-            modelBuilder.Entity<MonthlySummary>(entity =>
+            modelBuilder.Entity<MonthlySummaryDbModel>(entity =>
             {
                 entity.HasIndex(e => e.MonthlySummaryId, "IX_MonthlySummaries_MonthlySummaryId")
                     .IsUnique();
 
-                entity.Property(e => e.MonthlySummaryId).ValueGeneratedNever();
+                entity.Property(e => e.MonthlySummaryId).ValueGeneratedOnAdd();
 
-                entity.Property(e => e.MonthlySummaryCode).IsRequired();
+                entity.HasKey(e => e.MonthlySummaryId);
 
-                entity.Property(e => e.MonthlySummaryTrainingTypes).IsRequired();
+                entity.Property(e => e.SummaryCode).IsRequired();
 
-                entity.Property(e => e.MontlhySummaryGenerationDate).IsRequired();
+                entity.Property(e => e.CreatedOn).IsRequired();
+
+                entity.Property(e => e.TrainingTypes).IsRequired();
             });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        private void OnModelCreatingPartial(ModelBuilder modelBuilder)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
