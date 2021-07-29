@@ -1,0 +1,35 @@
+﻿@model LatestMonthlyStandingsResponse
+
+@{
+    ViewData["Title"] = "Skyrise Challenge";
+}
+
+    <div class="text-center">
+        <div><b>Standings generated on:</b> @Model.ReportDate<br /></div>
+        <div><b>Month:</b> @Model.ReportCode<br /></div>
+        <br />
+        <div style="overflow-x:auto;">
+            <table>
+                <tr>
+                    <th>No.</th>
+                    <th>AthleteName</th>
+                    <th>Kilometers</th>
+                    <th>Avg. Pace</th>
+                    <th>Elevation [m]</th>
+                    <th>TrainingCount</th>
+                </tr>
+                @foreach (var d in Model.AthleteStandings)
+                {
+                    <tr>
+                        <td>@d.CurrentPlace</td>
+                        <td>@d.AthleteName</td>
+                        <td>@d.DistanceSumInKilometers</td>
+                        <td>@d.AvgPace</td>
+                        <td>@d.ElevationInMeters</td>
+                        <td>@d.TrainingCount</td>
+                    </tr>
+
+                }
+            </table>
+        </div>
+    </div>

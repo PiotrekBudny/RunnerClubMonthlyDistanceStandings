@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StravaClubMonthlyDistanceSt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StravaClubMonthlyDistanceStandings.Database", "..\StavaClubMontlyDistanceStandings.Database\StravaClubMonthlyDistanceStandings.Database.csproj", "{D648DFC8-255A-440A-AF96-8714496DCC73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StravaClubMonthlyDistanceStandings.Web", "..\StravaClubMonthlyDistanceStandings.Web\StravaClubMonthlyDistanceStandings.Web.csproj", "{D3E4C9A8-6033-45F3-B72F-79B38D9BA1AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D648DFC8-255A-440A-AF96-8714496DCC73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D648DFC8-255A-440A-AF96-8714496DCC73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D648DFC8-255A-440A-AF96-8714496DCC73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3E4C9A8-6033-45F3-B72F-79B38D9BA1AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3E4C9A8-6033-45F3-B72F-79B38D9BA1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3E4C9A8-6033-45F3-B72F-79B38D9BA1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3E4C9A8-6033-45F3-B72F-79B38D9BA1AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

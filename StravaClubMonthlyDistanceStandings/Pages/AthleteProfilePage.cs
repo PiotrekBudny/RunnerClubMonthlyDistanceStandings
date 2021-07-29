@@ -43,9 +43,9 @@ namespace StravaClubMonthlyDistanceStandings.Pages
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine("No Activities found");
+                Console.WriteLine($"No Activities found: {e.Message} {e.InnerException?.Message} {e.StackTrace} {e.InnerException?.StackTrace}");
             }
 
 

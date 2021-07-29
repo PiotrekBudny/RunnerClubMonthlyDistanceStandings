@@ -1,5 +1,5 @@
-﻿using Microsoft.Edge.SeleniumTools;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 namespace StravaClubMonthlyDistanceStandings
 {
@@ -11,11 +11,14 @@ namespace StravaClubMonthlyDistanceStandings
         {
             var configuration = new ConfigurationWrapper();
 
-            var options = new EdgeOptions {UseChromium = true};
+            var options = new ChromeOptions();
             options.AddArgument("--silent");
             options.AddArgument("log-level=3");
+            options.AddArgument("headless"); 
+            options.AddArgument("--no-sandbox");
+            //options.AddArgument("--disable-software-rasterizer");
 
-            _webDriver = new EdgeDriver(options);
+            _webDriver = new ChromeDriver(options);
             _webDriver.Manage().Window.Maximize();
 
             _webDriver.Navigate().GoToUrl(configuration.GetStravaAddressEndpoint());

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Threading;
 using OpenQA.Selenium;
 using StravaClubMonthlyDistanceStandings.Models;
 
@@ -39,12 +41,23 @@ namespace StravaClubMonthlyDistanceStandings.Pages
 
         public ActivityDetails GetActivityDetails()
         {
+            string elevation;
+
+            try
+            {
+                elevation = ElevationValue.Text.RemoveMeasureUnitFromString();
+            }
+            catch (Exception e)
+            {
+                elevation = "0";
+            }
+
             return  new ActivityDetails()
             {
                 AthleteName = AthleteNameLink.Text.GetAthleteNameShortened(),
-                TrainingDistance = decimal.Parse(Distance.Text.RemoveMeasureUnitFromString()),
+                TrainingDistance = decimal.Parse(Distance.Text.RemoveMeasureUnitFromString(), CultureInfo.InvariantCulture),
                 TrainingPace = TimeSpan.Parse(Pace.Text.RemoveMeasureUnitFromString()),
-                TrainingElevation = decimal.Parse(ElevationValue.Text.RemoveMeasureUnitFromString()),
+                TrainingElevation = decimal.Parse(elevation, CultureInfo.InvariantCulture),
                 TrainingType = ActivityType.Text.GetActivityTypeSubstring()
             };
         }

@@ -9,7 +9,7 @@ namespace StravaClubMonthlyDistanceStandings
             var crawler = new SeleniumDataCrawler();
             crawler.RunSteps();
 
-            Console.ReadLine();
+            Environment.Exit(0);
         }
     }
 }

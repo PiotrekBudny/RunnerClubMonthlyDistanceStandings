@@ -53,8 +53,11 @@ namespace StravaClubMonthlyDistanceStandings
                     .MoveToClubPage(clubPageUrl)
                     .ClickOnMembersTab()
                     .MakeSnapshot(MakeSnapshotOfAthleteProfileUrls);
-
+               
+                
+                Console.WriteLine("Getting feed activities.");
                 GetAthletesFeedActivities();
+                Console.WriteLine("Getting activities data.");
                 GetActivitiesData();
             }
             catch (Exception e)
@@ -131,6 +134,8 @@ namespace StravaClubMonthlyDistanceStandings
 
                 var getAthleteActivitiesSteps = new AthleteProfilePage(_webDriver)
                     .MakeSnapshot(MakeSnapshotOfAthleteFeedActivitiesUrls);
+                Console.WriteLine("Getting activities for athlete of url:{0}", url);
+
             }
         }
 
@@ -149,11 +154,13 @@ namespace StravaClubMonthlyDistanceStandings
                     if (_configurationWrapper.GetActivityTypes().Contains(_currentActivityType) && _athleteProfileUrls.Contains(_currentAthleteActivityProfileUrl))
                     {
                         getActivityDataSteps.MakeSnapshot(MakeSnapshotOfActivityData);
+                        Console.WriteLine("Got activity data for :{0}", activityUrl);
+
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Activity not counted towards summary. Unable to gather data from activity {activityUrl}: {0}", e.Message);
+                    Console.WriteLine($"Activity not counted towards summary. Unable to gather data from activity {activityUrl}: {e.Message}, {e.StackTrace} {e.InnerException?.Message} {e.InnerException?.StackTrace}");
                 }
             }
         }
