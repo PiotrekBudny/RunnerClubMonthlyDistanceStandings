@@ -1,6 +1,5 @@
 # RunnerClubMonthlyDistanceStandings
 
-# RunnersClubMonthlyDistanceStandings
 
 **⚠️ This project is no longer functional. Due to changes in external dependencies (such as website structure, APIs, or authentication requirements), the code will not work as intended without significant updates.**
 
